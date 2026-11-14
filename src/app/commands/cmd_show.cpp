@@ -180,6 +180,24 @@ protected:
   }
 };
 
+class ShowSliceLabelsCommand : public Command {
+public:
+  ShowSliceLabelsCommand() : Command(CommandId::ShowSliceLabels()) {}
+
+protected:
+  bool onChecked(Context* ctx) override
+  {
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+    return docPref.show.sliceLabels();
+  }
+
+  void onExecute(Context* ctx) override
+  {
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+    docPref.show.sliceLabels(!docPref.show.sliceLabels());
+  }
+};
+
 class ShowSlicesCommand : public Command {
 public:
   ShowSlicesCommand() : Command(CommandId::ShowSlices()) {}
@@ -254,6 +272,11 @@ Command* CommandFactory::createShowBrushPreviewInPreviewCommand()
 Command* CommandFactory::createShowAutoGuidesCommand()
 {
   return new ShowAutoGuidesCommand;
+}
+
+Command* CommandFactory::createShowSliceLabelsCommand()
+{
+  return new ShowSliceLabelsCommand;
 }
 
 Command* CommandFactory::createShowSlicesCommand()

@@ -832,7 +832,8 @@ void Editor::drawOneSpriteUnclippedRect(ui::Graphics* g,
     IntersectClip clip(g, dest);
     if (clip) {
       // Draw slices
-      if (m_docPref.show.slices() && dx == m_proj.applyX(mainTilePosition().x) &&
+      if ((m_docPref.show.slices() || m_docPref.show.sliceLabels()) &&
+          dx == m_proj.applyX(mainTilePosition().x) &&
           dy == m_proj.applyY(mainTilePosition().y))
         drawSlices(g);
 
@@ -1233,7 +1234,7 @@ void Editor::drawGrid(Graphics* g,
 
 void Editor::drawSlices(ui::Graphics* g)
 {
-  if ((m_flags & kShowSlices) == 0)
+  if ((m_flags & (kShowSlices | kShowSliceLabels)) == 0)
     return;
 
   if (!isVisible() || !m_document)
@@ -1241,6 +1242,8 @@ void Editor::drawSlices(ui::Graphics* g)
 
   auto theme = SkinTheme::get(this);
   gfx::Point mainOffset(mainTilePosition());
+  const bool showSlices = (m_flags & kShowSlices) && m_docPref.show.slices();
+  const bool showSliceLabels = (m_flags & kShowSliceLabels) && m_docPref.show.sliceLabels();
 
   for (auto slice : m_sprite->slices()) {
     auto key = slice->getByFrame(m_frame);
@@ -1257,46 +1260,102 @@ void Editor::drawSlices(ui::Graphics* g)
     out = editorToScreen(out);
     out.offset(-bounds().origin());
 
-    // Center slices
-    if (key->hasCenter()) {
-      gfx::Rect in = editorToScreen(gfx::Rect(key->center()).offset(key->bounds().origin()))
-                       .offset(-bounds().origin());
+    if (showSlices) {
+      // Center slices
+      if (key->hasCenter()) {
+        gfx::Rect in = editorToScreen(gfx::Rect(key->center()).offset(key->bounds().origin()))
+                         .offset(-bounds().origin());
 
-      auto in_color = gfx::rgba(gfx::getr(color),
-                                gfx::getg(color),
-                                gfx::getb(color),
-                                doc::rgba_geta(docColor) / 4);
-      if (in.y > out.y && in.y < out.y2())
-        g->drawHLine(in_color, out.x, in.y, out.w);
-      if (in.y2() > out.y && in.y2() < out.y2())
-        g->drawHLine(in_color, out.x, in.y2(), out.w);
-      if (in.x > out.x && in.x < out.x2())
-        g->drawVLine(in_color, in.x, out.y, out.h);
-      if (in.x2() > out.x && in.x2() < out.x2())
-        g->drawVLine(in_color, in.x2(), out.y, out.h);
+        auto in_color = gfx::rgba(gfx::getr(color),
+                                  gfx::getg(color),
+                                  gfx::getb(color),
+                                  doc::rgba_geta(docColor) / 4);
+        if (in.y > out.y && in.y < out.y2())
+          g->drawHLine(in_color, out.x, in.y, out.w);
+        if (in.y2() > out.y && in.y2() < out.y2())
+          g->drawHLine(in_color, out.x, in.y2(), out.w);
+        if (in.x > out.x && in.x < out.x2())
+          g->drawVLine(in_color, in.x, out.y, out.h);
+        if (in.x2() > out.x && in.x2() < out.x2())
+          g->drawVLine(in_color, in.x2(), out.y, out.h);
+      }
+
+      // Pivot
+      if (key->hasPivot()) {
+        gfx::Rect in = editorToScreen(
+                         gfx::Rect(key->pivot(), gfx::Size(1, 1)).offset(key->bounds().origin()))
+                         .offset(-bounds().origin());
+
+        auto in_color = gfx::rgba(gfx::getr(color),
+                                  gfx::getg(color),
+                                  gfx::getb(color),
+                                  doc::rgba_geta(docColor) / 4);
+        g->drawRect(in_color, in);
+      }
+
+      if (isSliceSelected(slice) && getCurrentEditorInk()->isSlice()) {
+        PaintWidgetPartInfo info;
+        theme->paintWidgetPart(g, theme->styles.colorbarSelection(), out, info);
+      }
+      else {
+        g->drawRect(color, out);
+      }
     }
 
-    // Pivot
-    if (key->hasPivot()) {
-      gfx::Rect in = editorToScreen(
-                       gfx::Rect(key->pivot(), gfx::Size(1, 1)).offset(key->bounds().origin()))
-                       .offset(-bounds().origin());
-
-      auto in_color = gfx::rgba(gfx::getr(color),
-                                gfx::getg(color),
-                                gfx::getb(color),
-                                doc::rgba_geta(docColor) / 4);
-      g->drawRect(in_color, in);
-    }
-
-    if (isSliceSelected(slice) && getCurrentEditorInk()->isSlice()) {
-      PaintWidgetPartInfo info;
-      theme->paintWidgetPart(g, theme->styles.colorbarSelection(), out, info);
-    }
-    else {
-      g->drawRect(color, out);
-    }
+    if (showSliceLabels)
+      drawSliceLabel(g, slice->name(), out, color);
   }
+}
+
+void Editor::drawSliceLabel(ui::Graphics* g,
+                            const std::string& name,
+                            const gfx::Rect& bounds,
+                            const gfx::Color color)
+{
+  if (name.empty())
+    return;
+
+  const text::FontRef oldFont = g->font();
+  const text::FontRef font = SkinTheme::get(this)->getMiniFont();
+  const int margin = 2 * guiscale();
+  const int maxWidth = bounds.w - 2 * margin;
+  const int lineHeight = int(font->lineHeight());
+
+  if (maxWidth <= 0 || bounds.h < lineHeight + 2 * margin)
+    return;
+
+  std::string text = name;
+  if (font->textLength(text) > maxWidth) {
+    const std::string prefix = "...";
+    if (font->textLength(prefix) >= maxWidth)
+      return;
+
+    bool fits = false;
+    for (std::size_t i = 0; i < name.size(); ++i) {
+      // Skip UTF-8 continuation bytes to keep whole code points.
+      if ((name[i] & 0xC0) == 0x80)
+        continue;
+
+      const std::string candidate = prefix + name.substr(i);
+      if (font->textLength(candidate) <= maxWidth) {
+        text = candidate;
+        fits = true;
+        break;
+      }
+    }
+    if (!fits)
+      return;
+  }
+
+  const int textWidth = int(font->textLength(text));
+  const gfx::Color bg = gfx::rgba(gfx::getr(color), gfx::getg(color), gfx::getb(color), 255);
+
+  g->setFont(font);
+  g->drawText(text,
+              color_utils::blackandwhite_neg(bg),
+              bg,
+              gfx::Point(bounds.x2() - margin - textWidth, bounds.y + margin));
+  g->setFont(oldFont);
 }
 
 void Editor::drawTileNumbers(ui::Graphics* g, const Cel* cel)

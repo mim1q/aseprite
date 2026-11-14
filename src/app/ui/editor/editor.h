@@ -41,6 +41,7 @@
 
 #include <memory>
 #include <set>
+#include <string>
 
 namespace doc {
 class Layer;
@@ -91,8 +92,9 @@ public:
     kShowDecorators = 16,
     kShowSymmetryLine = 32,
     kShowSlices = 64,
+    kShowSliceLabels = 128,
     kDefaultEditorFlags = (kShowGrid | kShowMask | kShowOnionskin | kShowOutside | kShowDecorators |
-                           kShowSymmetryLine | kShowSlices)
+                           kShowSymmetryLine | kShowSlices | kShowSliceLabels)
   };
 
   enum class ZoomBehavior {
@@ -381,6 +383,10 @@ private:
                 const app::Color& color,
                 int alpha);
   void drawSlices(ui::Graphics* g);
+  void drawSliceLabel(ui::Graphics* g,
+                      const std::string& name,
+                      const gfx::Rect& bounds,
+                      const gfx::Color color);
   void drawTileNumbers(ui::Graphics* g, const Cel* cel);
   void drawCelBounds(ui::Graphics* g, const Cel* cel, const gfx::Color color);
   void drawCelGuides(ui::Graphics* g, const Cel* cel, const Cel* mouseCel);

@@ -1024,6 +1024,7 @@
           <item command="ShowGrid" text="@.view_show_grid" />
           <item command="ShowAutoGuides" text="@.view_show_auto_guides" />
           <item command="ShowSlices" text="@.view_show_slices" />
+          <item command="ShowSliceLabels" text="@.view_show_slice_labels" />
           <item command="ShowPixelGrid" text="@.view_show_pixel_grid" />
           <item command="ShowTileNumbers" text="@.view_show_tile_numbers" />
           <separator />

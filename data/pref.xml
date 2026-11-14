@@ -639,6 +639,7 @@
       <option id="pixel_grid" type="bool" default="false" />
       <option id="brush_preview" type="bool" default="true" />
       <option id="slices" type="bool" default="true" />
+      <option id="slice_labels" type="bool" default="true" />
       <option id="auto_guides" type="bool" default="true" />
       <option id="tile_numbers" type="bool" default="true" />
     </section>
