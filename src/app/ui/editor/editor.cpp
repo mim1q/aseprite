@@ -1316,7 +1316,7 @@ void Editor::drawSliceLabel(ui::Graphics* g,
     return;
 
   const text::FontRef oldFont = g->font();
-  const text::FontRef font = SkinTheme::get(this)->getMiniFont();
+  const text::FontRef font = SkinTheme::get(this)->getDefaultFont();
   const int margin = 2 * guiscale();
   const int maxWidth = bounds.w - 2 * margin;
   const int lineHeight = int(font->lineHeight());
