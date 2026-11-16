@@ -17,11 +17,13 @@
 #include "app/commands/commands.h"
 #include "app/console.h"
 #include "app/doc.h"
+#include "app/doc_range.h"
 #include "app/pref/preferences.h"
 #include "app/site.h"
 #include "app/util/clipboard.h"
 #include "base/scoped_value.h"
 #include "doc/layer.h"
+#include "doc/palette_picks.h"
 #include "ui/system.h"
 
 #ifdef _DEBUG
@@ -109,6 +111,18 @@ void Context::setActiveLayer(doc::Layer* layer)
 void Context::setActiveFrame(const doc::frame_t frame)
 {
   onSetActiveFrame(frame);
+}
+
+void Context::resetActiveSiteForDoc(Doc* doc, doc::Layer* layer, doc::frame_t frame)
+{
+  if (!m_activeSiteHandler)
+    return;
+
+  m_activeSiteHandler->setActiveLayerInDoc(doc, layer);
+  m_activeSiteHandler->setActiveFrameInDoc(doc, frame);
+  m_activeSiteHandler->setRangeInDoc(doc, DocRange());
+  m_activeSiteHandler->setSelectedColorsInDoc(doc, doc::PalettePicks());
+  m_activeSiteHandler->setSelectedTilesInDoc(doc, doc::PalettePicks());
 }
 
 void Context::setRange(const view::RealRange& range)

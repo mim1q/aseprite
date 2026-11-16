@@ -53,6 +53,11 @@ public:
   ui::View* viewWidget() const { return m_view; }
   void getSite(Site* site) const;
 
+  // Recreates the editor for the current document. Used after the
+  // whole sprite of the document is replaced (e.g. a reload from
+  // disk).
+  void reloadEditor();
+
   bool isPreview() { return m_type == Preview; }
 
   // Preferred timeline scroll
@@ -114,6 +119,10 @@ private:
   Editor* m_editor;
   gfx::Point m_timelineScroll;
 };
+
+// Recreates the editors of all views of the given document. Used when
+// the document's whole sprite is replaced (e.g. reloaded from disk).
+void reload_document_editors(Doc* doc);
 
 } // namespace app
 

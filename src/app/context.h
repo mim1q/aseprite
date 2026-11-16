@@ -135,6 +135,10 @@ public:
   void setActiveDocument(Doc* document);
   void setActiveLayer(doc::Layer* layer);
   void setActiveFrame(doc::frame_t frame);
+
+  // Resets the cached active site information for the given document
+  // (e.g. after replacing its whole sprite).
+  void resetActiveSiteForDoc(Doc* doc, doc::Layer* layer, doc::frame_t frame);
   void setRange(const view::RealRange& range);
   void setSelectedColors(const doc::PalettePicks& picks);
   void setSelectedTiles(const doc::PalettePicks& picks);

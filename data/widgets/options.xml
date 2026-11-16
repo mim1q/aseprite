@@ -131,6 +131,11 @@
                    tooltip="@.show_full_path_tooltip" />
           </grid>
 
+          <check id="auto_reload_files"
+                 text="@.auto_reload_files"
+                 tooltip="@.auto_reload_files_tooltip"
+                 pref="general.auto_reload_files" />
+
           <separator text="@.recover_files" horizontal="true" />
           <grid columns="2">
             <check id="enable_data_recovery"

@@ -110,6 +110,10 @@ public:
 
   os::ColorSpaceRef osColorSpace() const { return m_osColorSpace; }
 
+  // Updates the OS color space used to render the document from the
+  // current sprite (e.g. after replacing the whole sprite).
+  void updateColorSpaceFromSprite() { updateOSColorSpace(false); }
+
   //////////////////////////////////////////////////////////////////////
   // Modifications with notifications
 

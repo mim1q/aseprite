@@ -13,6 +13,7 @@
 
 #include "app/app.h"
 #include "app/app_menus.h"
+#include "app/auto_reload.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
 #include "app/crash/data_recovery.h"
@@ -196,6 +197,8 @@ void MainWindow::initialize()
   // When the language is changed, we reload the menu bar strings and
   // relayout the whole main window.
   Strings::instance()->LanguageChange.connect([this] { onLanguageChange(); });
+
+  m_autoReload = std::make_unique<AutoReload>(this);
 
   initTheme();
 }

@@ -712,6 +712,7 @@
         <separator />
         <item command="SaveFile" text="@.file_save" />
         <item command="SaveFileAs" text="@.file_save_as" group="file_save" />
+        <item command="ReloadFile" text="@.file_reload" group="file_save" />
         <item command="CloseFile" text="@.file_close" />
         <item command="CloseAllFiles" text="@.file_close_all" group="file_close" />
         <separator />

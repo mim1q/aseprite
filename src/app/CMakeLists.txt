@@ -264,6 +264,7 @@ target_sources(app-lib PRIVATE
   app.cpp
   app_brushes.cpp
   app_menus.cpp
+  auto_reload.cpp
   check_update.cpp
   cli/app_options.cpp
   cli/cli_open_file.cpp
@@ -303,6 +304,7 @@ target_sources(app-lib PRIVATE
   cmd/move_cel.cpp
   cmd/move_layer.cpp
   cmd/patch_cel.cpp
+  cmd/reload_sprite.cpp
   cmd/remap_colors.cpp
   cmd/remap_tilemaps.cpp
   cmd/remap_tileset.cpp
@@ -459,6 +461,7 @@ target_sources(app-lib PRIVATE
   commands/cmd_pixel_perfect_mode.cpp
   commands/cmd_play_animation.cpp
   commands/cmd_refresh.cpp
+  commands/cmd_reload_file.cpp
   commands/cmd_remove_frame.cpp
   commands/cmd_remove_frame_tag.cpp
   commands/cmd_remove_layer.cpp
@@ -575,6 +578,7 @@ target_sources(app-lib PRIVATE
   modules/palettes.cpp
   pref/preferences.cpp
   recent_files.cpp
+  reload_file.cpp
   render/shader_renderer.cpp
   render/simple_renderer.cpp
   res/palettes_loader_delegate.cpp
@@ -719,6 +723,7 @@ target_sources(app-lib PRIVATE
   util/conversion_to_image.cpp
   util/conversion_to_surface.cpp
   util/expand_cel_canvas.cpp
+  util/file_stamp.cpp
   util/filetoks.cpp
   util/layer_boundaries.cpp
   util/layer_utils.cpp

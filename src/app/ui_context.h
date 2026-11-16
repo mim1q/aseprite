@@ -34,6 +34,10 @@ public:
   DocView* activeView() const;
   void setActiveView(DocView* documentView);
 
+  // Reapplies the active view configuration (editor, timeline,
+  // preview, color bar, etc.) to the current active view.
+  void refreshActiveView();
+
   DocView* getFirstDocView(Doc* document) const override;
   DocViews getAllDocViews(Doc* document) const;
   Editors getAllEditorsIncludingPreview(Doc* document) const;

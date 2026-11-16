@@ -27,6 +27,7 @@ class CheckUpdateDelegate;
 #endif
 
 class BrowserView;
+class AutoReload;
 class ColorBar;
 class ContextBar;
 class DevConsoleView;
@@ -164,6 +165,7 @@ private:
   obs::scoped_connection m_timelineResizeConn;
   obs::scoped_connection m_colorBarResizeConn;
   obs::scoped_connection m_saveDockLayoutConn;
+  std::unique_ptr<AutoReload> m_autoReload;
   bool m_firstResize = true;
 };
 

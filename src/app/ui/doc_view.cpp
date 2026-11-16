@@ -258,6 +258,26 @@ DocView::~DocView()
   delete m_editor;
 }
 
+void DocView::reloadEditor()
+{
+  if (!m_editor)
+    return;
+
+  const render::Zoom zoom = m_editor->zoom();
+  const gfx::Point scroll = ui::View::getView(m_editor)->viewScroll();
+
+  delete m_editor;
+
+  m_editor = (m_type == Normal ? (Editor*)new AppEditor(m_document, m_previewDelegate) :
+                                 (Editor*)new PreviewEditor(m_document));
+  m_view->attachToView(m_editor);
+  m_editor->setDocView(this);
+  m_editor->setZoom(zoom);
+
+  if (ui::View* view = ui::View::getView(m_editor))
+    view->setViewScroll(scroll);
+}
+
 void DocView::getSite(Site* site) const
 {
   m_editor->getSite(site);
@@ -681,6 +701,54 @@ bool DocView::hasContentInActiveFrame(const doc::Layer* layer) const
     }
   }
   return false;
+}
+
+void reload_document_editors(Doc* doc)
+{
+  if (!App::instance() || !App::instance()->isGui()) {
+    if (Context* ctx = doc->context()) {
+      doc::Layer* layer = (doc->sprite() ? doc->sprite()->root()->firstLayer() : nullptr);
+      ctx->resetActiveSiteForDoc(doc, layer, 0);
+    }
+    return;
+  }
+
+  UIContext* ctx = UIContext::instance();
+  if (!ctx)
+    return;
+
+  DocView* activeView = ctx->activeView();
+  const bool activeDoc = (ctx->activeDocument() == doc);
+
+  if (Editor* editor = Editor::activeEditor()) {
+    if (editor->document() == doc)
+      Editor::_setActiveEditor(nullptr);
+  }
+
+  const DocViews views = ctx->getAllDocViews(doc);
+  for (DocView* view : views)
+    view->reloadEditor();
+
+  DocView* stateView = nullptr;
+  if (activeView && activeView->document() == doc)
+    stateView = activeView;
+  else if (!views.empty())
+    stateView = views.front();
+
+  doc::Layer* layer = nullptr;
+  doc::frame_t frame = 0;
+  if (stateView && stateView->editor()) {
+    layer = stateView->editor()->layer();
+    frame = stateView->editor()->frame();
+  }
+  else if (doc->sprite()) {
+    layer = doc->sprite()->root()->firstLayer();
+  }
+
+  ctx->resetActiveSiteForDoc(doc, layer, frame);
+
+  if (activeDoc && activeView && activeView->document() == doc)
+    ctx->refreshActiveView();
 }
 
 } // namespace app
